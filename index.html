@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vanilla Unicorn</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap">
+<style>
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+/* Layout: one long club site. Sticky nav, hero with live open/closed status, then news, events, VIP card with a live preview, schedule, team, contact. Single dark look on purpose (neon club at night). */
+:root {
+  --bg: #130822;
+  --bg-2: #1c0d33;
+  --card: #2a1450;
+  --line: #4a2a7a;
+  --fg: #f8eefb;
+  --muted: #c9b6e6;
+  --pink: #ff4fa3;
+  --pink-ink: #1a0b2e;
+  --violet: #9b6bff;
+  --ok: #5ee0a0;
+  --warn: #ffc857;
+  --display: 'Oswald', 'Arial Narrow', Arial, sans-serif;
+  --body: 'DM Sans', Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: inherit; }
+h1, h2, h3 { font-family: var(--display); text-transform: uppercase; line-height: 1.05; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; border-radius: 6px; }
+
+/* nav */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: rgba(19, 8, 34, 0.94); border-bottom: 1px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; gap: 24px; padding-block: 12px; }
+.logo { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; white-space: nowrap; color: var(--fg); }
+.logo b { color: var(--pink); }
+.links { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-left: auto; }
+.links::-webkit-scrollbar { display: none; }
+.links a { text-decoration: none; padding: 8px 14px; border-radius: 999px; font-weight: 500; font-size: 15px; color: var(--muted); white-space: nowrap; }
+.links a:hover { color: var(--fg); background: var(--card); }
+
+/* hero */
+.hero { background: radial-gradient(ellipse at 80% 0%, #4b1d8a 0%, transparent 60%), var(--bg); border-bottom: 1px solid var(--line); }
+.hero .wrap { padding-block: 72px 64px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: center; }
+.eyebrow { font-weight: 600; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; color: var(--pink); }
+.hero h1 { font-size: clamp(52px, 9vw, 112px); font-weight: 700; margin-block: 14px 20px; }
+.hero h1 span { color: var(--pink); }
+.hero p.lead { font-size: 20px; color: var(--muted); max-width: 52ch; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 2px solid var(--pink); background: var(--pink); color: var(--pink-ink); font: 600 16px var(--body); padding: 13px 24px; border-radius: 999px; text-decoration: none; cursor: pointer; }
+.btn:hover { filter: brightness(1.1); }
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--pink); }
+.status { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: grid; gap: 16px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; padding: 6px 14px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); width: fit-content; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+.pill.open .dot { background: var(--ok); }
+.pill.closed .dot { background: var(--warn); }
+.status h2 { font-size: 40px; }
+.status .hint { color: var(--muted); font-size: 15px; }
+.status dl { margin: 0; display: grid; gap: 8px; }
+.status dl div { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 8px; font-size: 15px; }
+.status dt { color: var(--muted); }
+.status dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+
+/* sections */
+section { padding-block: 72px; }
+section.alt { background: var(--bg-2); border-block: 1px solid var(--line); }
+.head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 32px; }
+.head h2 { font-size: clamp(36px, 5vw, 60px); }
+.head p { color: var(--muted); max-width: 46ch; }
+
+/* news */
+.news { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.news-side { display: grid; gap: 20px; align-content: start; }
+.post { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.post.big { background: linear-gradient(160deg, #5b2399, var(--card) 70%); padding: 36px; }
+.post.big h3 { font-size: clamp(30px, 4vw, 46px); }
+.post h3 { font-size: 26px; }
+.post p { color: var(--muted); }
+.post.big p { color: var(--fg); font-size: 18px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tag { font-weight: 600; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; background: var(--pink); color: var(--pink-ink); padding: 3px 10px; border-radius: 999px; }
+
+/* events */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { font: 500 15px var(--body); color: var(--muted); background: transparent; border: 1px solid var(--line); padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+.chip:hover { color: var(--fg); border-color: var(--pink); }
+.chip[aria-pressed="true"] { background: var(--pink); border-color: var(--pink); color: var(--pink-ink); font-weight: 600; }
+.events { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.event { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+section.alt .event { background: var(--card); }
+.event .day { font-family: var(--display); text-transform: uppercase; font-size: 15px; letter-spacing: 3px; color: var(--pink); font-weight: 600; }
+.event h3 { font-size: 26px; }
+.event p { color: var(--muted); font-size: 16px; }
+.event .when { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); padding: 24px 0; }
+
+/* vip */
+.vip { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.tiers { display: grid; gap: 12px; margin-bottom: 20px; }
+.tier { position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 16px 18px; cursor: pointer; }
+.tier:has(input:checked) { border-color: var(--pink); }
+.tier:has(input:focus-visible) { outline: 3px solid var(--pink); outline-offset: 3px; }
+.tier input { accent-color: var(--pink); width: 20px; height: 20px; margin: 0; }
+.tier strong { font-family: var(--display); text-transform: uppercase; font-size: 22px; letter-spacing: 1px; display: block; }
+.tier span.perks { color: var(--muted); font-size: 15px; display: block; }
+.tier .price { font-family: var(--display); font-size: 26px; font-weight: 600; color: var(--pink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+form.buy { display: grid; gap: 14px; }
+label { display: grid; gap: 6px; font-weight: 600; font-size: 15px; }
+input[type="text"], select { font: 400 17px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; width: 100%; }
+input[type="text"]:focus, select:focus { border-color: var(--pink); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sticky { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); display: grid; gap: 16px; min-width: 0; }
+.card-vip { aspect-ratio: 1.586; width: 100%; max-width: 460px; border-radius: 22px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; color: var(--fg); background: linear-gradient(135deg, #7a2fd0 0%, #2a1450 55%, #ff4fa3 130%); border: 1px solid #8a5acb; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); }
+.card-vip.gold { background: linear-gradient(135deg, #ffc857 -20%, #3a1d62 55%, #ff4fa3 130%); }
+.card-vip.black { background: linear-gradient(135deg, #0c0516, #3a1d62 80%, #7a2fd0 130%); border-color: var(--pink); }
+.card-top { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.card-top b { font-family: var(--display); font-size: 24px; letter-spacing: 2px; text-transform: uppercase; }
+.card-top span { font-size: 13px; letter-spacing: 3px; font-weight: 600; text-transform: uppercase; opacity: 0.9; }
+.card-name { font-family: var(--display); font-size: clamp(26px, 5vw, 34px); text-transform: uppercase; letter-spacing: 2px; overflow-wrap: anywhere; line-height: 1.1; }
+.card-foot { display: flex; justify-content: space-between; font-size: 14px; font-variant-numeric: tabular-nums; gap: 12px; }
+.order { background: var(--bg-2); border: 1px dashed var(--pink); border-radius: 16px; padding: 18px; display: grid; gap: 12px; }
+.order pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 400 15px/1.5 var(--body); color: var(--fg); }
+.note { font-size: 14px; color: var(--muted); }
+
+/* schedule + team */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.table { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); font-size: 16px; }
+th { font-family: var(--display); text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: var(--pink); font-weight: 600; }
+tr.today td { background: var(--card); font-weight: 600; }
+.team { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.member { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 4px; min-width: 0; }
+.member b { font-family: var(--display); font-size: 22px; text-transform: uppercase; letter-spacing: 1px; }
+.member span { color: var(--pink); font-weight: 600; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+.member small { color: var(--muted); font-size: 14px; }
+
+/* panel del dueño */
+.admin { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
+.box { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.box h3 { font-size: 26px; }
+.box .chips { margin: 0; }
+.btn.sm { padding: 7px 14px; font-size: 14px; }
+.st { font-weight: 600; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; }
+.st.pend { background: var(--warn); border-color: var(--warn); color: var(--pink-ink); }
+.st.ok { color: var(--ok); border-color: var(--ok); }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.admin.two-up { grid-template-columns: 1fr 1fr; margin-top: 24px; }
+@media (max-width: 860px) { .admin, .admin.two-up { grid-template-columns: 1fr; } }
+.mini-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.mini-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--line); padding-top: 8px; font-size: 15px; }
+.mini-list li span { min-width: 0; overflow-wrap: anywhere; }
+textarea { font: 400 17px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; width: 100%; resize: vertical; }
+textarea:focus { border-color: var(--pink); }
+footer { border-top: 1px solid var(--line); padding-block: 40px; color: var(--muted); font-size: 15px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 40px; justify-content: space-between; }
+footer b { color: var(--fg); }
+.toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); background: var(--pink); color: var(--pink-ink); font-weight: 600; padding: 12px 22px; border-radius: 999px; z-index: 40; max-width: calc(100% - 32px); }
+
+@media (max-width: 860px) {
+  .hero .wrap, .news, .vip, .two { grid-template-columns: 1fr; }
+  .hero .wrap { padding-block: 48px; gap: 32px; }
+  .sticky { position: static; }
+  section { padding-block: 52px; }
+  .nav .wrap { gap: 12px; }
+}
+@media (max-width: 480px) {
+  .row2 { grid-template-columns: 1fr; }
+  .tier { grid-template-columns: auto 1fr; }
+  .tier .price { grid-column: 2; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Principal">
+  <div class="wrap">
+    <a class="logo" href="#inicio">Vanilla <b>Unicorn</b></a>
+    <div class="links">
+      <a href="#noticias">Noticias</a>
+      <a href="#eventos">Eventos</a>
+      <a href="#vip">Carnet VIP</a>
+      <a href="#horarios">Horarios</a>
+      <a href="#equipo">Equipo</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="inicio">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Club nocturno · Música · Espectáculos</p>
+      <h1>La noche tiene <span>nombre</span></h1>
+      <p class="lead">Cócteles de la casa, DJs en directo y un espectáculo distinto cada semana. Entra, baila y deja que la noche cuente su historia.</p>
+      <div class="cta-row">
+        <a class="btn" href="#vip">Conseguir carnet VIP</a>
+        <a class="btn ghost" href="#eventos">Ver eventos</a>
+      </div>
+    </div>
+    <aside class="status" aria-live="polite">
+      <span class="pill" id="pill"><span class="dot"></span><span id="pillText">Comprobando…</span></span>
+      <h2 id="statusTitle">Esta noche</h2>
+      <p class="hint" id="statusHint"></p>
+      <dl>
+        <div><dt>Hora en Madrid</dt><dd id="clock">--:--</dd></div>
+        <div><dt>Entrada</dt><dd>Libre · VIP sin cola</dd></div>
+        <div><dt>Código de vestimenta</dt><dd>Elegante o temático</dd></div>
+      </dl>
+    </aside>
+  </div>
+</header>
+
+<main>
+<section id="noticias">
+  <div class="wrap">
+    <div class="head">
+      <h2>Noticias de la semana</h2>
+      <p id="weekLabel">Lo último que pasa dentro y fuera de la pista.</p>
+    </div>
+    <div class="news" id="news"></div>
+  </div>
+</section>
+
+<section class="alt" id="eventos">
+  <div class="wrap">
+    <div class="head">
+      <h2>Eventos</h2>
+      <p>Programación fija de cada semana y las noches especiales del mes.</p>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filtrar eventos por día"></div>
+    <div class="events" id="events"></div>
+  </div>
+</section>
+
+<section id="vip">
+  <div class="wrap">
+    <div class="head">
+      <h2>Carnet VIP</h2>
+      <p>Elige tu nivel, rellena tus datos de personaje y genera tu pedido. Se paga en persona con el dinero del juego.</p>
+    </div>
+    <div class="vip">
+      <form class="buy" id="buy" autocomplete="off">
+        <div class="tiers" id="tiers" role="radiogroup" aria-label="Nivel de carnet"></div>
+        <div class="row2">
+          <label for="nombre">Nombre del personaje
+            <input type="text" id="nombre" value="Valentina Cruz" maxlength="28" required>
+          </label>
+          <label for="tel">Teléfono IC
+            <input type="text" id="tel" value="555-0142" maxlength="14" required>
+          </label>
+        </div>
+        <label for="pago">Forma de pago
+          <select id="pago">
+            <option>Efectivo en el club</option>
+            <option>Transferencia bancaria IC</option>
+            <option>Tarjeta en barra</option>
+          </select>
+        </label>
+        <button class="btn" type="submit">Generar pedido</button>
+        <p class="note">Esta página es parte del rol. No se cobra dinero real ni se piden datos reales.</p>
+      </form>
+      <div class="sticky">
+        <div class="card-vip" id="cardVip" aria-label="Vista previa del carnet">
+          <div class="card-top"><b>Vanilla Unicorn</b><span id="cardTier">Rosa</span></div>
+          <div class="card-name" id="cardName">Valentina Cruz</div>
+          <div class="card-foot"><span id="cardNum">Nº VU-0000</span><span id="cardValid">Válido 30 días</span></div>
+        </div>
+        <div class="order" id="order" hidden>
+          <strong>Tu pedido está listo</strong>
+          <pre id="orderText"></pre>
+          <p class="note" id="saveNote"></p>
+          <button class="btn ghost" type="button" id="copy">Copiar pedido</button>
+          <p class="note">Pégalo en el ticket de Discord del club o dáselo a una camarera dentro del juego.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="horarios">
+  <div class="wrap two">
+    <div>
+      <div class="head"><h2>Horarios</h2></div>
+      <div class="table">
+        <table>
+          <thead><tr><th>Día</th><th>Abrimos</th><th>Cerramos</th></tr></thead>
+          <tbody id="sched"></tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:12px">Horario de España peninsular. Los domingos abrimos solo con evento especial.</p>
+    </div>
+    <div id="equipo">
+      <div class="head"><h2>Equipo</h2></div>
+      <div class="team" id="team"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><b>Vanilla Unicorn</b><br>Calle del Neón 12, distrito del puerto</div>
+    <div><b>Contacto</b><br>Teléfono IC: 555-0100<br>Discord: [enlace del servidor]</div>
+    <div><b>Normas</b><br>Respeto, rol y buen rollo.<br>Seguridad se reserva el derecho de admisión.</div>
+  </div>
+</footer>
+<div class="toast" id="toast" hidden></div>
+<script src="contenido.js"></script>
+<script src="web.js"></script>
+</body>
+</html>
