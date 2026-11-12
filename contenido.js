@@ -54,10 +54,10 @@ const HORARIO = {
 };
 
 const EQUIPO = [
-  { n: "[Daniela Redfield]", r: "Dirección", h: "21:00–01:00" },
-  { n: "[Mario Vance | Dante Moretti]", r: "Gerencia", h: "20:30–00:30" },
-  { n: "[Chloe Bennet]", r: "Barra", h: "22:00–01:00" },
-  { n: "[Manuel Heredia]", r: "DJ", h: "Según evento" },
-  { n: "[Jax Teller | Bruno Navarro]", r: "Seguridad", h: "21:30–00:30" }
+  { n: "Daniela Redfield", r: "Dirección", h: "21:00–01:00" },
+  { n: "Mario Vance | Dante Moretti", r: "Gerencia", h: "20:30–00:30" },
+  { n: "Chloe Bennet", r: "Barra", h: "22:00–01:00" },
+  { n: "Manuel Heredia", r: "DJ", h: "Según evento" },
+  { n: "Jax Teller | Bruno Navarro", r: "Seguridad", h: "21:30–00:30" }
 ];
 /* ============ FIN DEL CONTENIDO EDITABLE ============ */
